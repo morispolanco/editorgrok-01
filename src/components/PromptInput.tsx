@@ -43,7 +43,6 @@ const PromptInput = ({
 
   const handleClearPrompt = () => {
     setPrompt('');
-    setGeneratedImage(null);
     toast({
       title: "Prompt borrado",
       description: "El prompt ha sido eliminado.",
