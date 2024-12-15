@@ -71,7 +71,7 @@ const PromptInput = ({
   };
 
   return (
-    <div className="w-1/3 border-r border-border p-4 flex flex-col">
+    <div className="w-1/4 border-r border-border p-4 flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold">Prompt</h2>
         <Button
