@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import PromptInput from './PromptInput';
 import EditorToolbar from './EditorToolbar';
@@ -9,7 +9,42 @@ const TextEditor = () => {
   const [prompt, setPrompt] = useState('');
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [isGeneratingText, setIsGeneratingText] = useState(false);
+  const editorRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  const insertAtCursor = (text: string) => {
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      if (editorRef.current?.contains(range.commonAncestorContainer)) {
+        const textNode = document.createTextNode(text);
+        range.deleteContents();
+        range.insertNode(textNode);
+        range.collapse(false);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+    }
+  };
+
+  const insertImageAtCursor = (imageBase64: string) => {
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      if (editorRef.current?.contains(range.commonAncestorContainer)) {
+        const img = document.createElement('img');
+        img.src = `data:image/jpeg;base64,${imageBase64}`;
+        img.className = 'max-w-md rounded-lg shadow-lg mb-4';
+        img.alt = 'Generated content';
+        
+        range.deleteContents();
+        range.insertNode(img);
+        range.collapse(false);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+    }
+  };
 
   const generateText = async () => {
     setIsGeneratingText(true);
@@ -39,11 +74,8 @@ const TextEditor = () => {
 
       const data = await response.json();
       if (data.choices && data.choices[0]) {
-        const formattedText = data.choices[0].message.content
-          .split('\n\n')
-          .map(paragraph => `<p class="mb-4">${paragraph.trim()}</p>`)
-          .join('');
-        setContent(formattedText);
+        const formattedText = data.choices[0].message.content;
+        insertAtCursor(formattedText);
       }
     } catch (error) {
       console.error('Error generating text:', error);
@@ -79,7 +111,12 @@ const TextEditor = () => {
         prompt={prompt}
         setPrompt={setPrompt}
         generateText={generateText}
-        setGeneratedImage={setGeneratedImage}
+        setGeneratedImage={(image) => {
+          if (image) {
+            insertImageAtCursor(image);
+          }
+          setGeneratedImage(image);
+        }}
       />
       
       <div className="flex-1 flex flex-col">
@@ -87,21 +124,13 @@ const TextEditor = () => {
           formatText={formatText}
         />
         <div className="flex-grow p-4">
-          {generatedImage && (
-            <div className="mb-4">
-              <img 
-                src={`data:image/jpeg;base64,${generatedImage}`} 
-                alt="Generated content"
-                className="max-w-md rounded-lg shadow-lg"
-              />
-            </div>
-          )}
           {isGeneratingText && (
             <div className="flex items-center justify-center p-4">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
           )}
           <div
+            ref={editorRef}
             className="editor-content [&>p]:mb-4"
             contentEditable
             dangerouslySetInnerHTML={{ __html: content }}
