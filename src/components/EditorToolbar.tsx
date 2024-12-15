@@ -77,7 +77,7 @@ const EditorToolbar = ({ formatText }: EditorToolbarProps) => {
           <Copy className="h-4 w-4" />
         </Button>
         <Button variant="outline" size="icon" onClick={handleDelete}>
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="h-4 w-4 bg-white" />
         </Button>
         <Button variant="outline" size="icon" onClick={() => formatText('justifyLeft')}>
           <AlignLeft className="h-4 w-4" />
