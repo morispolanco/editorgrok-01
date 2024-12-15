@@ -1,84 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import PromptInput from './PromptInput';
 import EditorToolbar from './EditorToolbar';
 
-declare global {
-  interface Window {
-    SpeechRecognition: any;
-    webkitSpeechRecognition: any;
-  }
-}
-
 const TextEditor = () => {
-  const [isListening, setIsListening] = useState(false);
   const [content, setContent] = useState('');
   const [prompt, setPrompt] = useState('');
-  const [isPromptListening, setIsPromptListening] = useState(false);
   const { toast } = useToast();
-  const recognition = useRef<any>(null);
-  const promptRecognition = useRef<any>(null);
-
-  const initializeSpeechRecognition = (isPrompt: boolean) => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.lang = 'es-ES';
-
-      recognition.onresult = (event) => {
-        const transcript = Array.from(event.results)
-          .map(result => result[0])
-          .map(result => result.transcript)
-          .join('');
-
-        if (isPrompt) {
-          setPrompt(transcript);
-        } else {
-          setContent(transcript);
-        }
-      };
-
-      recognition.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
-        toast({
-          title: "Error",
-          description: "Hubo un error con el reconocimiento de voz.",
-          variant: "destructive",
-        });
-      };
-
-      return recognition;
-    }
-    return null;
-  };
-
-  const toggleListening = (isPrompt: boolean) => {
-    if (isPrompt) {
-      if (!promptRecognition.current) {
-        promptRecognition.current = initializeSpeechRecognition(true);
-      }
-      
-      if (isPromptListening) {
-        promptRecognition.current?.stop();
-      } else {
-        promptRecognition.current?.start();
-      }
-      setIsPromptListening(!isPromptListening);
-    } else {
-      if (!recognition.current) {
-        recognition.current = initializeSpeechRecognition(false);
-      }
-      
-      if (isListening) {
-        recognition.current?.stop();
-      } else {
-        recognition.current?.start();
-      }
-      setIsListening(!isListening);
-    }
-  };
 
   const generateText = async () => {
     try {
@@ -144,15 +72,11 @@ const TextEditor = () => {
       <PromptInput
         prompt={prompt}
         setPrompt={setPrompt}
-        isPromptListening={isPromptListening}
-        toggleListening={toggleListening}
         generateText={generateText}
       />
       
       <div className="flex-1 flex flex-col">
         <EditorToolbar
-          isListening={isListening}
-          toggleListening={toggleListening}
           formatText={formatText}
         />
         <div

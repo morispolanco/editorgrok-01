@@ -2,8 +2,6 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
-  Mic, 
-  MicOff, 
   Undo, 
   Redo, 
   Bold, 
@@ -21,12 +19,10 @@ import {
 import { useToast } from "@/hooks/use-toast";
 
 interface EditorToolbarProps {
-  isListening: boolean;
-  toggleListening: (isPrompt: boolean) => void;
   formatText: (command: string, value?: string) => void;
 }
 
-const EditorToolbar = ({ isListening, toggleListening, formatText }: EditorToolbarProps) => {
+const EditorToolbar = ({ formatText }: EditorToolbarProps) => {
   const { toast } = useToast();
   const fontSizes = [8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 40, 48, 60, 72, 96, 120];
 
@@ -110,14 +106,6 @@ const EditorToolbar = ({ isListening, toggleListening, formatText }: EditorToolb
             ))}
           </SelectContent>
         </Select>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => toggleListening(false)}
-          className={isListening ? "bg-primary text-primary-foreground" : ""}
-        >
-          {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-        </Button>
       </div>
     </div>
   );

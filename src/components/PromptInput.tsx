@@ -1,21 +1,17 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff, Trash2, Wand2 } from 'lucide-react';
+import { Trash2, Wand2 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 interface PromptInputProps {
   prompt: string;
   setPrompt: (value: string) => void;
-  isPromptListening: boolean;
-  toggleListening: (isPrompt: boolean) => void;
   generateText: () => void;
 }
 
 const PromptInput = ({ 
   prompt, 
   setPrompt, 
-  isPromptListening, 
-  toggleListening, 
   generateText 
 }: PromptInputProps) => {
   const { toast } = useToast();
@@ -74,14 +70,6 @@ const PromptInput = ({
     <div className="w-1/4 border-r border-border p-4 flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold">Prompt</h2>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => toggleListening(true)}
-          className={isPromptListening ? "bg-primary text-primary-foreground" : ""}
-        >
-          {isPromptListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-        </Button>
       </div>
       <textarea
         className="flex-grow p-4 rounded-md border border-input bg-background resize-none mb-4"
