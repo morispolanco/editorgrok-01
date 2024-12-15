@@ -1,12 +1,12 @@
 import React, { useState, useRef } from 'react';
-import { Button } from "@/components/ui/button";
-import { Mic, MicOff, Type, Undo, Redo, Bold, Italic, List, Heading, Trash2 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import PromptInput from './PromptInput';
+import EditorToolbar from './EditorToolbar';
 
 declare global {
   interface Window {
-    SpeechRecognition: typeof SpeechRecognition;
-    webkitSpeechRecognition: typeof SpeechRecognition;
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
   }
 }
 
@@ -16,10 +16,9 @@ const TextEditor = () => {
   const [prompt, setPrompt] = useState('');
   const [isPromptListening, setIsPromptListening] = useState(false);
   const { toast } = useToast();
-  const recognition = useRef<SpeechRecognition | null>(null);
-  const promptRecognition = useRef<SpeechRecognition | null>(null);
+  const recognition = useRef<any>(null);
+  const promptRecognition = useRef<any>(null);
 
-  // Initialize speech recognition
   const initializeSpeechRecognition = (isPrompt: boolean) => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
@@ -108,7 +107,6 @@ const TextEditor = () => {
 
       const data = await response.json();
       if (data.choices && data.choices[0]) {
-        // Formatear el texto con párrafos separados
         const formattedText = data.choices[0].message.content
           .split('\n\n')
           .map(paragraph => `<p class="mb-4">${paragraph.trim()}</p>`)
@@ -125,81 +123,26 @@ const TextEditor = () => {
     }
   };
 
-  const clearText = () => {
-    setContent('');
-    toast({
-      title: "Texto borrado",
-      description: "El contenido ha sido eliminado.",
-    });
-  };
-
   const formatText = (command: string) => {
     document.execCommand(command, false);
   };
 
   return (
     <div className="flex h-screen bg-background">
-      {/* Left Column - Prompt */}
-      <div className="w-1/3 border-r border-border p-4 flex flex-col">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">Prompt</h2>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => toggleListening(true)}
-            className={isPromptListening ? "bg-primary text-primary-foreground" : ""}
-          >
-            {isPromptListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-          </Button>
-        </div>
-        <textarea
-          className="flex-grow p-4 rounded-md border border-input bg-background resize-none mb-4"
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Ingrese su prompt aquí..."
-        />
-        <div className="flex gap-2">
-          <Button onClick={generateText} className="flex-1">
-            Generar Texto
-          </Button>
-          <Button variant="destructive" size="icon" onClick={clearText}>
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Right Column - Editor */}
+      <PromptInput
+        prompt={prompt}
+        setPrompt={setPrompt}
+        isPromptListening={isPromptListening}
+        toggleListening={toggleListening}
+        generateText={generateText}
+      />
+      
       <div className="flex-1 flex flex-col">
-        <div className="border-b border-border p-4">
-          <div className="flex space-x-2">
-            <Button variant="outline" size="icon" onClick={() => formatText('bold')}>
-              <Bold className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon" onClick={() => formatText('italic')}>
-              <Italic className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon" onClick={() => formatText('insertUnorderedList')}>
-              <List className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon" onClick={() => formatText('formatBlock')}>
-              <Heading className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon" onClick={() => document.execCommand('undo')}>
-              <Undo className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="icon" onClick={() => document.execCommand('redo')}>
-              <Redo className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => toggleListening(false)}
-              className={isListening ? "bg-primary text-primary-foreground" : ""}
-            >
-              {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-            </Button>
-          </div>
-        </div>
+        <EditorToolbar
+          isListening={isListening}
+          toggleListening={toggleListening}
+          formatText={formatText}
+        />
         <div
           className="flex-grow p-4 editor-content [&>p]:mb-4"
           contentEditable
