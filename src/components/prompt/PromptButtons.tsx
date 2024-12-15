@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Wand2, Mic, MicOff, ImagePlus, Broom, Copy } from 'lucide-react';
+import { Wand2, Mic, MicOff, ImagePlus, Trash2, Copy } from 'lucide-react';
 
 interface PromptButtonsProps {
   isListening: boolean;
@@ -60,7 +60,7 @@ const PromptButtons = ({
           onClick={onClear}
           className="bg-white hover:bg-gray-100"
         >
-          <Broom className="h-4 w-4" />
+          <Trash2 className="h-4 w-4" />
         </Button>
       </div>
     </div>
