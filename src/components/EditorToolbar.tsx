@@ -16,7 +16,8 @@ import {
   AlignCenter,
   AlignJustify,
   FileDown,
-  Book
+  Book,
+  Scissors
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import html2pdf from 'html2pdf.js';
@@ -42,6 +43,22 @@ const EditorToolbar = ({ formatText }: EditorToolbarProps) => {
       toast({
         title: "Error",
         description: "No se pudo copiar el texto. Por favor, intente nuevamente.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCut = () => {
+    try {
+      document.execCommand('cut');
+      toast({
+        title: "Texto cortado",
+        description: "El texto seleccionado ha sido cortado al portapapeles.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo cortar el texto. Por favor, intente nuevamente.",
         variant: "destructive",
       });
     }
@@ -139,6 +156,9 @@ const EditorToolbar = ({ formatText }: EditorToolbarProps) => {
         </Button>
         <Button variant="outline" size="icon" onClick={handleCopy}>
           <Copy className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="icon" onClick={handleCut}>
+          <Scissors className="h-4 w-4" />
         </Button>
         <Button variant="outline" size="icon" onClick={handleDelete}>
           <Trash2 className="h-4 w-4 text-foreground" />
