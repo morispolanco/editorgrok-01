@@ -161,6 +161,11 @@ const TextEditor = () => {
           dangerouslySetInnerHTML={{ __html: content }}
           onInput={(e) => setContent(e.currentTarget.innerHTML)}
         />
+        <div className="p-4 border-t border-border">
+          <p className="text-center text-[12px] text-[#0FA0CE]">
+            Su publicidad aquí
+          </p>
+        </div>
       </div>
     </div>
   );
