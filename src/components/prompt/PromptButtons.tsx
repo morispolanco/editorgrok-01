@@ -39,15 +39,15 @@ const PromptButtons = ({
         </Button>
       </div>
       <div className="flex gap-2">
-        <Button variant="outline" size="icon" onClick={onImprove}>
-          <Wand2 className="h-4 w-4" />
-        </Button>
         <Button 
           variant="outline" 
           size="icon" 
           onClick={onToggleMic}
         >
           {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+        </Button>
+        <Button variant="outline" size="icon" onClick={onImprove}>
+          <Wand2 className="h-4 w-4" />
         </Button>
         <Button variant="outline" size="icon" onClick={onCopy}>
           <Copy className="h-4 w-4" />
