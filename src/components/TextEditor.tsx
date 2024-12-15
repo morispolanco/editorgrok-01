@@ -2,14 +2,17 @@ import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import PromptInput from './PromptInput';
 import EditorToolbar from './EditorToolbar';
+import { Loader2 } from 'lucide-react';
 
 const TextEditor = () => {
   const [content, setContent] = useState('');
   const [prompt, setPrompt] = useState('');
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [isGeneratingText, setIsGeneratingText] = useState(false);
   const { toast } = useToast();
 
   const generateText = async () => {
+    setIsGeneratingText(true);
     try {
       const response = await fetch('https://api.x.ai/v1/chat/completions', {
         method: 'POST',
@@ -49,6 +52,8 @@ const TextEditor = () => {
         description: "No se pudo generar el texto. Por favor, intente nuevamente.",
         variant: "destructive",
       });
+    } finally {
+      setIsGeneratingText(false);
     }
   };
 
@@ -89,6 +94,11 @@ const TextEditor = () => {
                 alt="Generated content"
                 className="max-w-md rounded-lg shadow-lg"
               />
+            </div>
+          )}
+          {isGeneratingText && (
+            <div className="flex items-center justify-center p-4">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
           )}
           <div
