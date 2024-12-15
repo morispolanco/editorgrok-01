@@ -1,7 +1,14 @@
 import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff, Type, Undo, Redo, Bold, Italic, List, Heading } from 'lucide-react';
+import { Mic, MicOff, Type, Undo, Redo, Bold, Italic, List, Heading, Trash2 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+
+declare global {
+  interface Window {
+    SpeechRecognition: typeof SpeechRecognition;
+    webkitSpeechRecognition: typeof SpeechRecognition;
+  }
+}
 
 const TextEditor = () => {
   const [isListening, setIsListening] = useState(false);
@@ -86,7 +93,7 @@ const TextEditor = () => {
           messages: [
             {
               role: "system",
-              content: "You are a writing assistant."
+              content: "You are a writing assistant. Format your responses with proper paragraph spacing, separating each paragraph with a blank line."
             },
             {
               role: "user",
@@ -101,7 +108,12 @@ const TextEditor = () => {
 
       const data = await response.json();
       if (data.choices && data.choices[0]) {
-        setContent(data.choices[0].message.content);
+        // Formatear el texto con párrafos separados
+        const formattedText = data.choices[0].message.content
+          .split('\n\n')
+          .map(paragraph => `<p class="mb-4">${paragraph.trim()}</p>`)
+          .join('');
+        setContent(formattedText);
       }
     } catch (error) {
       console.error('Error generating text:', error);
@@ -111,6 +123,14 @@ const TextEditor = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const clearText = () => {
+    setContent('');
+    toast({
+      title: "Texto borrado",
+      description: "El contenido ha sido eliminado.",
+    });
   };
 
   const formatText = (command: string) => {
@@ -138,9 +158,14 @@ const TextEditor = () => {
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Ingrese su prompt aquí..."
         />
-        <Button onClick={generateText} className="w-full">
-          Generar Texto
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={generateText} className="flex-1">
+            Generar Texto
+          </Button>
+          <Button variant="destructive" size="icon" onClick={clearText}>
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Right Column - Editor */}
@@ -176,7 +201,7 @@ const TextEditor = () => {
           </div>
         </div>
         <div
-          className="flex-grow p-4 editor-content"
+          className="flex-grow p-4 editor-content [&>p]:mb-4"
           contentEditable
           dangerouslySetInnerHTML={{ __html: content }}
           onInput={(e) => setContent(e.currentTarget.innerHTML)}
