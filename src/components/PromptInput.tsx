@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Trash2, Wand2 } from 'lucide-react';
+import { Trash2, Wand2, Mic, MicOff } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 interface PromptInputProps {
@@ -15,6 +15,57 @@ const PromptInput = ({
   generateText 
 }: PromptInputProps) => {
   const { toast } = useToast();
+  const [isListening, setIsListening] = useState(false);
+  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+
+  const startListening = () => {
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'es-ES';
+      recognition.continuous = true;
+      recognition.interimResults = true;
+
+      recognition.onresult = (event) => {
+        const transcript = Array.from(event.results)
+          .map(result => result[0])
+          .map(result => result.transcript)
+          .join('');
+        setPrompt(transcript);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognition.start();
+      setRecognition(recognition);
+      setIsListening(true);
+
+      toast({
+        title: "Micrófono activado",
+        description: "Puedes empezar a hablar.",
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Tu navegador no soporta el reconocimiento de voz.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const stopListening = () => {
+    if (recognition) {
+      recognition.stop();
+      setIsListening(false);
+      setRecognition(null);
+      toast({
+        title: "Micrófono desactivado",
+        description: "Se ha detenido la grabación.",
+      });
+    }
+  };
 
   const clearPrompt = () => {
     setPrompt('');
@@ -83,6 +134,14 @@ const PromptInput = ({
         </Button>
         <Button variant="outline" size="icon" onClick={improvePrompt}>
           <Wand2 className="h-4 w-4" />
+        </Button>
+        <Button 
+          variant="outline" 
+          size="icon" 
+          onClick={isListening ? stopListening : startListening}
+          className={isListening ? "bg-red-500 hover:bg-red-600" : ""}
+        >
+          {isListening ? <MicOff className="h-4 w-4 text-white" /> : <Mic className="h-4 w-4" />}
         </Button>
         <Button variant="destructive" size="icon" onClick={clearPrompt}>
           <Trash2 className="h-4 w-4" />
