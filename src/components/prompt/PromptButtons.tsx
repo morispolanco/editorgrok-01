@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Wand2, Mic, MicOff, ImagePlus, Trash2, Copy } from 'lucide-react';
+import { Wand2, Mic, MicOff, Trash2, Copy } from 'lucide-react';
 
 interface PromptButtonsProps {
   isListening: boolean;
@@ -35,7 +35,6 @@ const PromptButtons = ({
           disabled={isGeneratingImage}
           className="flex-1 bg-yellow-100 hover:bg-yellow-200"
         >
-          <ImagePlus className="h-4 w-4 mr-2" />
           Generar Imagen
         </Button>
       </div>
