@@ -126,6 +126,14 @@ const TextEditor = () => {
   const formatText = (command: string, value?: string) => {
     if (command === 'formatBlock' && value) {
       document.execCommand(command, false, value);
+    } else if (command === 'fontSize' && value) {
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const span = document.createElement('span');
+        span.style.fontSize = `${value}px`;
+        range.surroundContents(span);
+      }
     } else {
       document.execCommand(command, false);
     }

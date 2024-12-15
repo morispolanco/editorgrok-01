@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   Mic, 
   MicOff, 
@@ -27,6 +28,7 @@ interface EditorToolbarProps {
 
 const EditorToolbar = ({ isListening, toggleListening, formatText }: EditorToolbarProps) => {
   const { toast } = useToast();
+  const fontSizes = [8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 40, 48, 60, 72, 96, 120];
 
   const handleCopy = async () => {
     try {
@@ -48,6 +50,10 @@ const EditorToolbar = ({ isListening, toggleListening, formatText }: EditorToolb
 
   const handleDelete = () => {
     document.execCommand('delete', false);
+  };
+
+  const handleFontSize = (size: string) => {
+    formatText('fontSize', size);
   };
 
   return (
@@ -92,6 +98,18 @@ const EditorToolbar = ({ isListening, toggleListening, formatText }: EditorToolb
         <Button variant="outline" size="icon" onClick={() => document.execCommand('redo')}>
           <Redo className="h-4 w-4" />
         </Button>
+        <Select onValueChange={handleFontSize}>
+          <SelectTrigger className="w-[100px]">
+            <SelectValue placeholder="Tamaño" />
+          </SelectTrigger>
+          <SelectContent>
+            {fontSizes.map((size) => (
+              <SelectItem key={size} value={size.toString()}>
+                {size}px
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Button
           variant="outline"
           size="icon"
