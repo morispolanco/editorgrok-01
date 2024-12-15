@@ -23,7 +23,23 @@ const TextEditor = () => {
         range.collapse(false);
         selection.removeAllRanges();
         selection.addRange(range);
+      } else {
+        // Si no hay selección dentro del editor, añadir al final
+        if (editorRef.current) {
+          const textNode = document.createTextNode(text);
+          editorRef.current.appendChild(textNode);
+        }
       }
+    } else {
+      // Si no hay selección, añadir al final
+      if (editorRef.current) {
+        const textNode = document.createTextNode(text);
+        editorRef.current.appendChild(textNode);
+      }
+    }
+    // Actualizar el estado del contenido
+    if (editorRef.current) {
+      setContent(editorRef.current.innerHTML);
     }
   };
 
@@ -76,6 +92,10 @@ const TextEditor = () => {
       if (data.choices && data.choices[0]) {
         const formattedText = data.choices[0].message.content;
         insertAtCursor(formattedText);
+        toast({
+          title: "Texto generado",
+          description: "El texto se ha generado exitosamente.",
+        });
       }
     } catch (error) {
       console.error('Error generating text:', error);
