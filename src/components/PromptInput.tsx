@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Trash2, Wand2, Mic, MicOff } from 'lucide-react';
+import { Trash2, Wand2, Mic, MicOff, ImagePlus } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 interface PromptInputProps {
@@ -117,6 +117,14 @@ const PromptInput = ({
     }
   };
 
+  const generateImage = async () => {
+    toast({
+      title: "Generando imagen",
+      description: "La imagen se está generando con el prompt actual.",
+    });
+    // Aquí se implementará la lógica de generación de imagen en una futura actualización
+  };
+
   return (
     <div className="w-1/4 border-r border-border p-4 flex flex-col">
       <div className="flex items-center justify-between mb-4">
@@ -134,6 +142,9 @@ const PromptInput = ({
         </Button>
         <Button variant="outline" size="icon" onClick={improvePrompt}>
           <Wand2 className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="icon" onClick={generateImage}>
+          <ImagePlus className="h-4 w-4" />
         </Button>
         <Button 
           variant="outline" 
