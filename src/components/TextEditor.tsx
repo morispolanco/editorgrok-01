@@ -13,7 +13,6 @@ const TextEditor = () => {
   const { toast } = useToast();
 
   const insertAtCursor = (text: string) => {
-    // Procesar el texto para dividirlo en párrafos
     const paragraphs = text.split('\n\n').map(p => p.trim()).filter(p => p.length > 0);
     const formattedText = paragraphs.map(p => `<p class="mb-4">${p}</p>`).join('');
 
@@ -25,25 +24,34 @@ const TextEditor = () => {
         tempDiv.innerHTML = formattedText;
         
         range.deleteContents();
+        const fragment = document.createDocumentFragment();
         Array.from(tempDiv.childNodes).forEach(node => {
-          range.insertNode(node);
+          fragment.appendChild(node.cloneNode(true));
         });
+        range.insertNode(fragment);
         range.collapse(false);
-        selection.removeAllRanges();
-        selection.addRange(range);
-      } else {
-        if (editorRef.current) {
-          editorRef.current.innerHTML += formattedText;
-        }
+      } else if (editorRef.current) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = formattedText;
+        const fragment = document.createDocumentFragment();
+        Array.from(tempDiv.childNodes).forEach(node => {
+          fragment.appendChild(node.cloneNode(true));
+        });
+        editorRef.current.appendChild(fragment);
       }
-    } else {
-      if (editorRef.current) {
-        editorRef.current.innerHTML += formattedText;
-      }
+    } else if (editorRef.current) {
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = formattedText;
+      const fragment = document.createDocumentFragment();
+      Array.from(tempDiv.childNodes).forEach(node => {
+        fragment.appendChild(node.cloneNode(true));
+      });
+      editorRef.current.appendChild(fragment);
     }
     
     if (editorRef.current) {
       setContent(editorRef.current.innerHTML);
+      editorRef.current.focus();
     }
   };
 
@@ -155,7 +163,7 @@ const TextEditor = () => {
           )}
           <div
             ref={editorRef}
-            className="editor-content [&>p]:mb-4"
+            className="editor-content [&>p]:mb-4 min-h-[200px] outline-none"
             contentEditable
             dangerouslySetInnerHTML={{ __html: content }}
             onInput={(e) => setContent(e.currentTarget.innerHTML)}
