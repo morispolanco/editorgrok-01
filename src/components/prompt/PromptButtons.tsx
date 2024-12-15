@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Trash2, Wand2, Mic, MicOff, ImagePlus } from 'lucide-react';
+import { Wand2, Mic, MicOff, ImagePlus, Broom, Copy } from 'lucide-react';
 
 interface PromptButtonsProps {
   isListening: boolean;
@@ -10,6 +10,7 @@ interface PromptButtonsProps {
   onGenerateImage: () => void;
   onToggleMic: () => void;
   onClear: () => void;
+  onCopy: () => void;
 }
 
 const PromptButtons = ({
@@ -19,7 +20,8 @@ const PromptButtons = ({
   onImprove,
   onGenerateImage,
   onToggleMic,
-  onClear
+  onClear,
+  onCopy
 }: PromptButtonsProps) => {
   return (
     <div className="flex flex-col gap-2">
@@ -29,10 +31,9 @@ const PromptButtons = ({
         </Button>
         <Button 
           variant="outline" 
-          size="icon" 
           onClick={onGenerateImage}
           disabled={isGeneratingImage}
-          className="flex-1"
+          className="flex-1 bg-yellow-100 hover:bg-yellow-200"
         >
           <ImagePlus className="h-4 w-4 mr-2" />
           Generar Imagen
@@ -50,8 +51,16 @@ const PromptButtons = ({
         >
           {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
         </Button>
-        <Button variant="destructive" size="icon" onClick={onClear}>
-          <Trash2 className="h-4 w-4" />
+        <Button variant="outline" size="icon" onClick={onCopy}>
+          <Copy className="h-4 w-4" />
+        </Button>
+        <Button 
+          variant="outline" 
+          size="icon" 
+          onClick={onClear}
+          className="bg-white hover:bg-gray-100"
+        >
+          <Broom className="h-4 w-4" />
         </Button>
       </div>
     </div>

@@ -122,6 +122,21 @@ const PromptInput = ({
     }
   };
 
+  const handleCopyPrompt = () => {
+    navigator.clipboard.writeText(prompt).then(() => {
+      toast({
+        title: "Texto copiado",
+        description: "El texto ha sido copiado al portapapeles.",
+      });
+    }).catch(() => {
+      toast({
+        title: "Error",
+        description: "No se pudo copiar el texto.",
+        variant: "destructive",
+      });
+    });
+  };
+
   return (
     <div className="w-1/4 border-r border-border p-4 flex flex-col">
       <div className="flex items-center justify-between mb-4">
@@ -141,6 +156,7 @@ const PromptInput = ({
         onGenerateImage={handleGenerateImage}
         onToggleMic={handleToggleMic}
         onClear={handleClearPrompt}
+        onCopy={handleCopyPrompt}
       />
     </div>
   );
