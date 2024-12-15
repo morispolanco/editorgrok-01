@@ -94,7 +94,7 @@ const EditorToolbar = ({ formatText }: EditorToolbarProps) => {
         <Button variant="outline" size="icon" onClick={() => document.execCommand('redo')}>
           <Redo className="h-4 w-4" />
         </Button>
-        <Select onValueChange={handleFontSize} defaultValue="11">
+        <Select onValueChange={handleFontSize} defaultValue="12">
           <SelectTrigger className="w-[100px]">
             <SelectValue placeholder="11 puntos" />
           </SelectTrigger>
