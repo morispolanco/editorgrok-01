@@ -161,14 +161,6 @@ const TextEditor = () => {
           dangerouslySetInnerHTML={{ __html: content }}
           onInput={(e) => setContent(e.currentTarget.innerHTML)}
         />
-        <div className="p-4 border-t border-border min-h-[92px] flex items-center justify-center">
-          <a 
-            href="mailto:mp@editorialarje.com?subject=Publicidad%20en%20editor" 
-            className="text-[12px] text-[#0FA0CE] hover:underline"
-          >
-            Su publicidad aquí
-          </a>
-        </div>
       </div>
     </div>
   );
