@@ -14,9 +14,11 @@ import {
   Trash2,
   AlignLeft,
   AlignCenter,
-  AlignJustify
+  AlignJustify,
+  FileDown
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import html2pdf from 'html2pdf.js';
 
 interface EditorToolbarProps {
   formatText: (command: string, value?: string) => void;
@@ -50,6 +52,39 @@ const EditorToolbar = ({ formatText }: EditorToolbarProps) => {
 
   const handleFontSize = (size: string) => {
     formatText('fontSize', size);
+  };
+
+  const handleExportPDF = () => {
+    const element = document.querySelector('.editor-content');
+    if (!element) {
+      toast({
+        title: "Error",
+        description: "No se encontró contenido para exportar.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const opt = {
+      margin: 1,
+      filename: 'documento.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(element).save().then(() => {
+      toast({
+        title: "PDF generado",
+        description: "El documento se ha exportado exitosamente.",
+      });
+    }).catch(() => {
+      toast({
+        title: "Error",
+        description: "No se pudo generar el PDF. Por favor, intente nuevamente.",
+        variant: "destructive",
+      });
+    });
   };
 
   return (
@@ -93,6 +128,9 @@ const EditorToolbar = ({ formatText }: EditorToolbarProps) => {
         </Button>
         <Button variant="outline" size="icon" onClick={() => document.execCommand('redo')}>
           <Redo className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="icon" onClick={handleExportPDF}>
+          <FileDown className="h-4 w-4" />
         </Button>
         <Select onValueChange={handleFontSize} defaultValue="12">
           <SelectTrigger className="w-[100px]">
