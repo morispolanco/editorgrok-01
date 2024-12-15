@@ -22,9 +22,11 @@ const PromptInput = ({
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
   useEffect(() => {
-    const apiKey = process.env.RUNWARE_API_KEY;
+    const apiKey = import.meta.env.VITE_RUNWARE_API_KEY;
     if (apiKey) {
       setRunwareService(new RunwareService(apiKey));
+    } else {
+      console.warn('No se encontró la API key de Runware');
     }
   }, []);
 
@@ -157,7 +159,6 @@ const PromptInput = ({
         description: "La imagen se ha generado exitosamente.",
       });
 
-      // Aquí podrías mostrar la imagen generada en algún lugar de la interfaz
       console.log("Imagen generada:", result.imageURL);
       
     } catch (error) {
