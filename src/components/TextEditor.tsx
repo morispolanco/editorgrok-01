@@ -6,6 +6,7 @@ import EditorToolbar from './EditorToolbar';
 const TextEditor = () => {
   const [content, setContent] = useState('');
   const [prompt, setPrompt] = useState('');
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const { toast } = useToast();
 
   const generateText = async () => {
@@ -73,18 +74,30 @@ const TextEditor = () => {
         prompt={prompt}
         setPrompt={setPrompt}
         generateText={generateText}
+        setGeneratedImage={setGeneratedImage}
       />
       
       <div className="flex-1 flex flex-col">
         <EditorToolbar
           formatText={formatText}
         />
-        <div
-          className="flex-grow p-4 editor-content [&>p]:mb-4"
-          contentEditable
-          dangerouslySetInnerHTML={{ __html: content }}
-          onInput={(e) => setContent(e.currentTarget.innerHTML)}
-        />
+        <div className="flex-grow p-4">
+          {generatedImage && (
+            <div className="mb-4">
+              <img 
+                src={`data:image/jpeg;base64,${generatedImage}`} 
+                alt="Generated content"
+                className="max-w-md rounded-lg shadow-lg"
+              />
+            </div>
+          )}
+          <div
+            className="editor-content [&>p]:mb-4"
+            contentEditable
+            dangerouslySetInnerHTML={{ __html: content }}
+            onInput={(e) => setContent(e.currentTarget.innerHTML)}
+          />
+        </div>
       </div>
     </div>
   );

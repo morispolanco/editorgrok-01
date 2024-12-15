@@ -8,12 +8,14 @@ interface PromptInputProps {
   prompt: string;
   setPrompt: (value: string) => void;
   generateText: () => void;
+  setGeneratedImage: (image: string | null) => void;
 }
 
 const PromptInput = ({ 
   prompt, 
   setPrompt, 
-  generateText 
+  generateText,
+  setGeneratedImage 
 }: PromptInputProps) => {
   const { toast } = useToast();
   const [isListening, setIsListening] = useState(false);
@@ -38,6 +40,7 @@ const PromptInput = ({
 
   const handleClearPrompt = () => {
     setPrompt('');
+    setGeneratedImage(null);
     toast({
       title: "Prompt borrado",
       description: "El prompt ha sido eliminado.",
@@ -100,13 +103,13 @@ const PromptInput = ({
     try {
       const result = await generateImage({ prompt });
       
-      toast({
-        title: "Imagen generada",
-        description: "La imagen se ha generado exitosamente.",
-      });
-
-      console.log("Imagen generada:", result);
-      
+      if (result.data?.[0]?.b64_json) {
+        setGeneratedImage(result.data[0].b64_json);
+        toast({
+          title: "Imagen generada",
+          description: "La imagen se ha generado exitosamente.",
+        });
+      }
     } catch (error) {
       console.error("Error generando imagen:", error);
       toast({

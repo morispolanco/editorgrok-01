@@ -33,6 +33,7 @@ export const generateImage = async (params: GenerateImageParams) => {
     }
 
     const data = await response.json();
+    console.log("Respuesta de la API:", data);
     return data;
   } catch (error) {
     console.error('Error generando imagen:', error);
