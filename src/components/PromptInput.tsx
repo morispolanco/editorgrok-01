@@ -139,9 +139,9 @@ const PromptInput = ({
           variant="outline" 
           size="icon" 
           onClick={isListening ? stopListening : startListening}
-          className={isListening ? "bg-red-500 hover:bg-red-600" : ""}
+          className={isListening ? "bg-red-500 hover:bg-red-600 text-white" : ""}
         >
-          {isListening ? <MicOff className="h-4 w-4 text-white" /> : <Mic className="h-4 w-4" />}
+          {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
         </Button>
         <Button variant="destructive" size="icon" onClick={clearPrompt}>
           <Trash2 className="h-4 w-4" />
