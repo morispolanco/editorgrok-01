@@ -1,11 +1,11 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff, Undo, Redo, Bold, Italic, List, Heading } from 'lucide-react';
+import { Mic, MicOff, Undo, Redo, Bold, Italic, List, Heading1, Heading2, Heading3 } from 'lucide-react';
 
 interface EditorToolbarProps {
   isListening: boolean;
   toggleListening: (isPrompt: boolean) => void;
-  formatText: (command: string) => void;
+  formatText: (command: string, value?: string) => void;
 }
 
 const EditorToolbar = ({ isListening, toggleListening, formatText }: EditorToolbarProps) => {
@@ -21,8 +21,14 @@ const EditorToolbar = ({ isListening, toggleListening, formatText }: EditorToolb
         <Button variant="outline" size="icon" onClick={() => formatText('insertUnorderedList')}>
           <List className="h-4 w-4" />
         </Button>
-        <Button variant="outline" size="icon" onClick={() => formatText('formatBlock')}>
-          <Heading className="h-4 w-4" />
+        <Button variant="outline" size="icon" onClick={() => formatText('formatBlock', 'h1')}>
+          <Heading1 className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="icon" onClick={() => formatText('formatBlock', 'h2')}>
+          <Heading2 className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="icon" onClick={() => formatText('formatBlock', 'h3')}>
+          <Heading3 className="h-4 w-4" />
         </Button>
         <Button variant="outline" size="icon" onClick={() => document.execCommand('undo')}>
           <Undo className="h-4 w-4" />

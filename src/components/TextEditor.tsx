@@ -123,8 +123,12 @@ const TextEditor = () => {
     }
   };
 
-  const formatText = (command: string) => {
-    document.execCommand(command, false);
+  const formatText = (command: string, value?: string) => {
+    if (command === 'formatBlock' && value) {
+      document.execCommand(command, false, value);
+    } else {
+      document.execCommand(command, false);
+    }
   };
 
   return (
