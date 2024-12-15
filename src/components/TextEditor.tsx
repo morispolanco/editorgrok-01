@@ -13,31 +13,35 @@ const TextEditor = () => {
   const { toast } = useToast();
 
   const insertAtCursor = (text: string) => {
+    // Procesar el texto para dividirlo en párrafos
+    const paragraphs = text.split('\n\n').map(p => p.trim()).filter(p => p.length > 0);
+    const formattedText = paragraphs.map(p => `<p class="mb-4">${p}</p>`).join('');
+
     const selection = window.getSelection();
     if (selection && selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
       if (editorRef.current?.contains(range.commonAncestorContainer)) {
-        const textNode = document.createTextNode(text);
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = formattedText;
+        
         range.deleteContents();
-        range.insertNode(textNode);
+        Array.from(tempDiv.childNodes).forEach(node => {
+          range.insertNode(node);
+        });
         range.collapse(false);
         selection.removeAllRanges();
         selection.addRange(range);
       } else {
-        // Si no hay selección dentro del editor, añadir al final
         if (editorRef.current) {
-          const textNode = document.createTextNode(text);
-          editorRef.current.appendChild(textNode);
+          editorRef.current.innerHTML += formattedText;
         }
       }
     } else {
-      // Si no hay selección, añadir al final
       if (editorRef.current) {
-        const textNode = document.createTextNode(text);
-        editorRef.current.appendChild(textNode);
+        editorRef.current.innerHTML += formattedText;
       }
     }
-    // Actualizar el estado del contenido
+    
     if (editorRef.current) {
       setContent(editorRef.current.innerHTML);
     }
@@ -75,7 +79,7 @@ const TextEditor = () => {
           messages: [
             {
               role: "system",
-              content: "You are a writing assistant. Format your responses with proper paragraph spacing, separating each paragraph with a blank line."
+              content: "Eres un asistente de escritura. Genera texto plano sin formato markdown. Separa los párrafos con una línea en blanco."
             },
             {
               role: "user",
