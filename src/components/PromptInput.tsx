@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Trash2, Wand2, Mic, MicOff, ImagePlus } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { RunwareService } from '@/services/runwareService';
 
 interface PromptInputProps {
   prompt: string;
@@ -17,6 +18,15 @@ const PromptInput = ({
   const { toast } = useToast();
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+  const [runwareService, setRunwareService] = useState<RunwareService | null>(null);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+
+  useEffect(() => {
+    const apiKey = process.env.RUNWARE_API_KEY;
+    if (apiKey) {
+      setRunwareService(new RunwareService(apiKey));
+    }
+  }, []);
 
   const startListening = () => {
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
@@ -118,11 +128,48 @@ const PromptInput = ({
   };
 
   const generateImage = async () => {
-    toast({
-      title: "Generando imagen",
-      description: "La imagen se está generando con el prompt actual.",
-    });
-    // Aquí se implementará la lógica de generación de imagen en una futura actualización
+    if (!runwareService) {
+      toast({
+        title: "Error",
+        description: "No se ha configurado la API key de Runware.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!prompt.trim()) {
+      toast({
+        title: "Error",
+        description: "Por favor, ingrese un prompt antes de generar una imagen.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsGeneratingImage(true);
+    try {
+      const result = await runwareService.generateImage({
+        positivePrompt: prompt,
+      });
+
+      toast({
+        title: "Imagen generada",
+        description: "La imagen se ha generado exitosamente.",
+      });
+
+      // Aquí podrías mostrar la imagen generada en algún lugar de la interfaz
+      console.log("Imagen generada:", result.imageURL);
+      
+    } catch (error) {
+      console.error("Error generando imagen:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo generar la imagen. Por favor, intente nuevamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingImage(false);
+    }
   };
 
   return (
@@ -143,7 +190,12 @@ const PromptInput = ({
         <Button variant="outline" size="icon" onClick={improvePrompt}>
           <Wand2 className="h-4 w-4" />
         </Button>
-        <Button variant="outline" size="icon" onClick={generateImage}>
+        <Button 
+          variant="outline" 
+          size="icon" 
+          onClick={generateImage}
+          disabled={isGeneratingImage}
+        >
           <ImagePlus className="h-4 w-4" />
         </Button>
         <Button 
