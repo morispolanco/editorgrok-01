@@ -22,7 +22,10 @@ const PromptInput = ({
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   
-  const { startListening, stopListening } = useVoiceRecognition(setPrompt);
+  const { startListening, stopListening } = useVoiceRecognition(setPrompt, () => {
+    setIsListening(false);
+    setRecognition(null);
+  });
 
   const handleToggleMic = () => {
     if (isListening) {

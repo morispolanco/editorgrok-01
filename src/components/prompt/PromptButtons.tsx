@@ -46,7 +46,6 @@ const PromptButtons = ({
           variant="outline" 
           size="icon" 
           onClick={onToggleMic}
-          className={isListening ? "bg-red-500 hover:bg-red-600 text-white" : ""}
         >
           {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
         </Button>

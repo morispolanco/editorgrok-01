@@ -1,6 +1,9 @@
 import { useToast } from "@/hooks/use-toast";
 
-export const useVoiceRecognition = (onTranscript: (text: string) => void) => {
+export const useVoiceRecognition = (
+  onTranscript: (text: string) => void,
+  onAutoStop: () => void
+) => {
   const { toast } = useToast();
   let silenceTimer: NodeJS.Timeout;
 
@@ -8,12 +11,12 @@ export const useVoiceRecognition = (onTranscript: (text: string) => void) => {
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       const recognition = new SpeechRecognition();
+
       recognition.lang = 'es-ES';
       recognition.continuous = true;
       recognition.interimResults = true;
 
       recognition.onresult = (event) => {
-        // Clear the existing timer when speech is detected
         if (silenceTimer) {
           clearTimeout(silenceTimer);
         }
@@ -24,10 +27,10 @@ export const useVoiceRecognition = (onTranscript: (text: string) => void) => {
           .join('');
         onTranscript(transcript);
 
-        // Start a new timer after speech is detected
         silenceTimer = setTimeout(() => {
           if (recognition) {
             recognition.stop();
+            onAutoStop();
             toast({
               title: "Micrófono desactivado",
               description: "Se ha detectado 5 segundos de silencio.",
@@ -43,7 +46,6 @@ export const useVoiceRecognition = (onTranscript: (text: string) => void) => {
       };
 
       recognition.start();
-      
       toast({
         title: "Micrófono activado",
         description: "Puedes empezar a hablar.",
@@ -68,7 +70,7 @@ export const useVoiceRecognition = (onTranscript: (text: string) => void) => {
       recognition.stop();
       toast({
         title: "Micrófono desactivado",
-        description: "Se ha detenido la grabación.",
+        description: "Has desactivado el micrófono.",
       });
     }
   };
