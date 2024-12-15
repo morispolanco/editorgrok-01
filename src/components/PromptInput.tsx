@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { Trash2, Wand2, Mic, MicOff, ImagePlus } from 'lucide-react';
+import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
-import { RunwareService } from '@/services/runwareService';
+import PromptButtons from './prompt/PromptButtons';
+import { useVoiceRecognition } from './prompt/VoiceRecognition';
+import { generateImage } from '@/services/togetherService';
 
 interface PromptInputProps {
   prompt: string;
@@ -18,68 +18,25 @@ const PromptInput = ({
   const { toast } = useToast();
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
-  const [runwareService, setRunwareService] = useState<RunwareService | null>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  
+  const { startListening, stopListening } = useVoiceRecognition(setPrompt);
 
-  useEffect(() => {
-    const apiKey = import.meta.env.VITE_RUNWARE_API_KEY;
-    if (apiKey) {
-      setRunwareService(new RunwareService(apiKey));
-    } else {
-      console.warn('No se encontró la API key de Runware');
-    }
-  }, []);
-
-  const startListening = () => {
-    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognition = new SpeechRecognition();
-      recognition.lang = 'es-ES';
-      recognition.continuous = true;
-      recognition.interimResults = true;
-
-      recognition.onresult = (event) => {
-        const transcript = Array.from(event.results)
-          .map(result => result[0])
-          .map(result => result.transcript)
-          .join('');
-        setPrompt(transcript);
-      };
-
-      recognition.onend = () => {
-        setIsListening(false);
-      };
-
-      recognition.start();
-      setRecognition(recognition);
-      setIsListening(true);
-
-      toast({
-        title: "Micrófono activado",
-        description: "Puedes empezar a hablar.",
-      });
-    } else {
-      toast({
-        title: "Error",
-        description: "Tu navegador no soporta el reconocimiento de voz.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const stopListening = () => {
-    if (recognition) {
-      recognition.stop();
+  const handleToggleMic = () => {
+    if (isListening) {
+      stopListening(recognition);
       setIsListening(false);
       setRecognition(null);
-      toast({
-        title: "Micrófono desactivado",
-        description: "Se ha detenido la grabación.",
-      });
+    } else {
+      const newRecognition = startListening();
+      if (newRecognition) {
+        setRecognition(newRecognition);
+        setIsListening(true);
+      }
     }
   };
 
-  const clearPrompt = () => {
+  const handleClearPrompt = () => {
     setPrompt('');
     toast({
       title: "Prompt borrado",
@@ -87,7 +44,7 @@ const PromptInput = ({
     });
   };
 
-  const improvePrompt = async () => {
+  const handleImprovePrompt = async () => {
     try {
       const response = await fetch('https://api.x.ai/v1/chat/completions', {
         method: 'POST',
@@ -129,16 +86,7 @@ const PromptInput = ({
     }
   };
 
-  const generateImage = async () => {
-    if (!runwareService) {
-      toast({
-        title: "Error",
-        description: "No se ha configurado la API key de Runware.",
-        variant: "destructive"
-      });
-      return;
-    }
-
+  const handleGenerateImage = async () => {
     if (!prompt.trim()) {
       toast({
         title: "Error",
@@ -150,16 +98,14 @@ const PromptInput = ({
 
     setIsGeneratingImage(true);
     try {
-      const result = await runwareService.generateImage({
-        positivePrompt: prompt,
-      });
-
+      const result = await generateImage({ prompt });
+      
       toast({
         title: "Imagen generada",
         description: "La imagen se ha generado exitosamente.",
       });
 
-      console.log("Imagen generada:", result.imageURL);
+      console.log("Imagen generada:", result);
       
     } catch (error) {
       console.error("Error generando imagen:", error);
@@ -184,33 +130,15 @@ const PromptInput = ({
         onChange={(e) => setPrompt(e.target.value)}
         placeholder="Ingrese su prompt aquí..."
       />
-      <div className="flex gap-2">
-        <Button onClick={generateText} className="flex-1">
-          Generar Texto
-        </Button>
-        <Button variant="outline" size="icon" onClick={improvePrompt}>
-          <Wand2 className="h-4 w-4" />
-        </Button>
-        <Button 
-          variant="outline" 
-          size="icon" 
-          onClick={generateImage}
-          disabled={isGeneratingImage}
-        >
-          <ImagePlus className="h-4 w-4" />
-        </Button>
-        <Button 
-          variant="outline" 
-          size="icon" 
-          onClick={isListening ? stopListening : startListening}
-          className={isListening ? "bg-red-500 hover:bg-red-600 text-white" : ""}
-        >
-          {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-        </Button>
-        <Button variant="destructive" size="icon" onClick={clearPrompt}>
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      </div>
+      <PromptButtons
+        isListening={isListening}
+        isGeneratingImage={isGeneratingImage}
+        onGenerate={generateText}
+        onImprove={handleImprovePrompt}
+        onGenerateImage={handleGenerateImage}
+        onToggleMic={handleToggleMic}
+        onClear={handleClearPrompt}
+      />
     </div>
   );
 };
