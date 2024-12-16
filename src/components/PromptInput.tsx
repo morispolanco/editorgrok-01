@@ -150,16 +150,18 @@ const PromptInput = ({
         onChange={(e) => setPrompt(e.target.value)}
         placeholder="Ingrese su prompt aquí..."
       />
-      <PromptButtons
-        isListening={isListening}
-        isGeneratingImage={isGeneratingImage}
-        onGenerate={generateText}
-        onImprove={handleImprovePrompt}
-        onGenerateImage={handleGenerateImage}
-        onToggleMic={handleToggleMic}
-        onClear={handleClearPrompt}
-        onCopy={handleCopyPrompt}
-      />
+      <div className="mb-16"> {/* Añadido margen inferior para evitar que el footer oculte los botones */}
+        <PromptButtons
+          isListening={isListening}
+          isGeneratingImage={isGeneratingImage}
+          onGenerate={generateText}
+          onImprove={handleImprovePrompt}
+          onGenerateImage={handleGenerateImage}
+          onToggleMic={handleToggleMic}
+          onClear={handleClearPrompt}
+          onCopy={handleCopyPrompt}
+        />
+      </div>
     </div>
   );
 };
