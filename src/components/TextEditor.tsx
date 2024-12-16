@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import PromptInput from './PromptInput';
 import EditorToolbar from './EditorToolbar';
+import Footer from './Footer';
 import { Loader2 } from 'lucide-react';
 
 const TextEditor = () => {
@@ -155,7 +156,7 @@ const TextEditor = () => {
         <EditorToolbar
           formatText={formatText}
         />
-        <div className="flex-grow p-4">
+        <div className="flex-grow p-4 pb-16">
           {isGeneratingText && (
             <div className="flex items-center justify-center p-4">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -169,6 +170,7 @@ const TextEditor = () => {
             onInput={(e) => setContent(e.currentTarget.innerHTML)}
           />
         </div>
+        <Footer />
       </div>
     </div>
   );
