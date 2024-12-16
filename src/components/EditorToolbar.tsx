@@ -144,8 +144,40 @@ const EditorToolbar = ({ formatText }: EditorToolbarProps) => {
       return;
     }
 
-    const content = element.innerHTML;
-    const blob = new Blob([content], { type: 'application/msword' });
+    // Create a temporary div to handle HTML content
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = element.innerHTML;
+
+    // Replace common HTML elements with their text content plus newlines
+    const paragraphs = tempDiv.getElementsByTagName('p');
+    Array.from(paragraphs).forEach(p => {
+      p.replaceWith(p.textContent + '\n\n');
+    });
+
+    const headings = tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    Array.from(headings).forEach(h => {
+      h.replaceWith(h.textContent + '\n\n');
+    });
+
+    const lists = tempDiv.querySelectorAll('ul, ol');
+    Array.from(lists).forEach(list => {
+      const items = Array.from(list.getElementsByTagName('li'))
+        .map(li => '• ' + li.textContent)
+        .join('\n');
+      list.replaceWith(items + '\n\n');
+    });
+
+    // Get the plain text content
+    let plainText = tempDiv.textContent || '';
+    
+    // Remove any remaining HTML tags
+    plainText = plainText.replace(/<[^>]*>/g, '');
+    
+    // Remove extra whitespace and normalize line breaks
+    plainText = plainText.replace(/\s+/g, ' ').trim();
+    plainText = plainText.replace(/\n\s*\n/g, '\n\n');
+
+    const blob = new Blob([plainText], { type: 'application/msword' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
