@@ -5,6 +5,7 @@ import {
   Bold, 
   Italic, 
   List, 
+  ListOrdered,
   Heading1, 
   Heading2, 
   Heading3,
@@ -171,6 +172,9 @@ const EditorToolbar = ({ formatText }: EditorToolbarProps) => {
         </Button>
         <Button variant="outline" size="icon" onClick={() => formatText('insertUnorderedList')}>
           <List className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="icon" onClick={() => formatText('insertOrderedList')}>
+          <ListOrdered className="h-4 w-4" />
         </Button>
         <Button variant="outline" size="icon" onClick={() => formatText('formatBlock', 'h1')}>
           <Heading1 className="h-4 w-4" />
