@@ -2,8 +2,6 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
-  Undo, 
-  Redo, 
   Bold, 
   Italic, 
   List, 
@@ -171,12 +169,6 @@ const EditorToolbar = ({ formatText }: EditorToolbarProps) => {
         </Button>
         <Button variant="outline" size="icon" onClick={() => formatText('justifyFull')}>
           <AlignJustify className="h-4 w-4" />
-        </Button>
-        <Button variant="outline" size="icon" onClick={() => document.execCommand('undo')}>
-          <Undo className="h-4 w-4" />
-        </Button>
-        <Button variant="outline" size="icon" onClick={() => document.execCommand('redo')}>
-          <Redo className="h-4 w-4" />
         </Button>
         <Button variant="outline" size="icon" onClick={handleExportPDF}>
           <FileDown className="h-4 w-4" />
