@@ -15,7 +15,8 @@ import {
   AlignJustify,
   FileDown,
   Book,
-  Scissors
+  Scissors,
+  FileText
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import html2pdf from 'html2pdf.js';
@@ -131,6 +132,34 @@ const EditorToolbar = ({ formatText }: EditorToolbarProps) => {
     });
   };
 
+  const handleExportWord = () => {
+    const element = document.querySelector('.editor-content');
+    if (!element) {
+      toast({
+        title: "Error",
+        description: "No se encontró contenido para exportar.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const content = element.innerHTML;
+    const blob = new Blob([content], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'documento.doc';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Word generado",
+      description: "El documento se ha exportado en formato Word exitosamente.",
+    });
+  };
+
   return (
     <div className="border-b border-border p-4">
       <div className="flex space-x-2">
@@ -175,6 +204,9 @@ const EditorToolbar = ({ formatText }: EditorToolbarProps) => {
         </Button>
         <Button variant="outline" size="icon" onClick={handleExportEbook}>
           <Book className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="icon" onClick={handleExportWord}>
+          <FileText className="h-4 w-4" />
         </Button>
         <Select onValueChange={handleFontSize} defaultValue="12">
           <SelectTrigger className="w-[100px]">
