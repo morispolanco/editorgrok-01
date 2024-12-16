@@ -151,12 +151,14 @@ const EditorToolbar = ({ formatText }: EditorToolbarProps) => {
     // Replace common HTML elements with their text content plus newlines
     const paragraphs = tempDiv.getElementsByTagName('p');
     Array.from(paragraphs).forEach(p => {
+      // Mantener el espaciado original entre párrafos
       p.replaceWith(p.textContent + '\n\n');
     });
 
     const headings = tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6');
     Array.from(headings).forEach(h => {
-      h.replaceWith(h.textContent + '\n\n');
+      // Agregar espaciado adicional para los encabezados
+      h.replaceWith('\n' + h.textContent + '\n\n');
     });
 
     const lists = tempDiv.querySelectorAll('ul, ol');
@@ -164,18 +166,18 @@ const EditorToolbar = ({ formatText }: EditorToolbarProps) => {
       const items = Array.from(list.getElementsByTagName('li'))
         .map(li => '• ' + li.textContent)
         .join('\n');
-      list.replaceWith(items + '\n\n');
+      // Mantener el espaciado antes y después de las listas
+      list.replaceWith('\n' + items + '\n\n');
     });
 
     // Get the plain text content
     let plainText = tempDiv.textContent || '';
     
-    // Remove any remaining HTML tags
+    // Remove any remaining HTML tags while preserving line breaks
     plainText = plainText.replace(/<[^>]*>/g, '');
     
-    // Remove extra whitespace and normalize line breaks
-    plainText = plainText.replace(/\s+/g, ' ').trim();
-    plainText = plainText.replace(/\n\s*\n/g, '\n\n');
+    // Preserve multiple consecutive line breaks to mantain paragraph spacing
+    plainText = plainText.replace(/\n{3,}/g, '\n\n');
 
     const blob = new Blob([plainText], { type: 'application/msword' });
     const url = URL.createObjectURL(blob);
