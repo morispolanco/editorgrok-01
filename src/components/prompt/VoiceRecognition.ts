@@ -6,11 +6,21 @@ export const useVoiceRecognition = (
 ) => {
   const { toast } = useToast();
   let silenceTimer: NodeJS.Timeout;
+  let lastCorrection = 0;
+  const CORRECTION_INTERVAL = 5000; // Mínimo 5 segundos entre correcciones
 
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   const correctText = async (text: string, retryCount = 0): Promise<string> => {
     try {
+      // Verificar el tiempo desde la última corrección
+      const now = Date.now();
+      const timeSinceLastCorrection = now - lastCorrection;
+      if (timeSinceLastCorrection < CORRECTION_INTERVAL) {
+        console.log('Demasiado pronto para otra corrección, devolviendo texto original');
+        return text;
+      }
+
       // Si ya hemos intentado 3 veces, devolvemos el texto original
       if (retryCount >= 3) {
         console.log('Máximo número de reintentos alcanzado, devolviendo texto original');
@@ -42,14 +52,15 @@ export const useVoiceRecognition = (
 
       if (response.status === 429) {
         console.log(`Intento ${retryCount + 1}: Rate limit alcanzado, esperando antes de reintentar...`);
-        // Espera exponencial: 2^retryCount segundos (2, 4, 8 segundos)
-        const waitTime = Math.pow(2, retryCount) * 1000;
+        // Espera exponencial: 5^retryCount segundos (5, 25, 125 segundos)
+        const waitTime = Math.pow(5, retryCount) * 1000;
         await delay(waitTime);
         return correctText(text, retryCount + 1);
       }
 
       const data = await response.json();
       if (data.choices && data.choices[0]) {
+        lastCorrection = Date.now(); // Actualizar el timestamp de la última corrección exitosa
         return data.choices[0].message.content;
       }
       return text;
@@ -57,7 +68,7 @@ export const useVoiceRecognition = (
       console.error('Error corrigiendo texto:', error);
       if (retryCount < 3) {
         console.log(`Intento ${retryCount + 1}: Error en la petición, reintentando...`);
-        const waitTime = Math.pow(2, retryCount) * 1000;
+        const waitTime = Math.pow(5, retryCount) * 1000;
         await delay(waitTime);
         return correctText(text, retryCount + 1);
       }
