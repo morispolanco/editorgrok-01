@@ -7,8 +7,16 @@ export const useVoiceRecognition = (
   const { toast } = useToast();
   let silenceTimer: NodeJS.Timeout;
 
-  const correctText = async (text: string): Promise<string> => {
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+  const correctText = async (text: string, retryCount = 0): Promise<string> => {
     try {
+      // Si ya hemos intentado 3 veces, devolvemos el texto original
+      if (retryCount >= 3) {
+        console.log('Máximo número de reintentos alcanzado, devolviendo texto original');
+        return text;
+      }
+
       const response = await fetch('https://api.x.ai/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -32,6 +40,14 @@ export const useVoiceRecognition = (
         })
       });
 
+      if (response.status === 429) {
+        console.log(`Intento ${retryCount + 1}: Rate limit alcanzado, esperando antes de reintentar...`);
+        // Espera exponencial: 2^retryCount segundos (2, 4, 8 segundos)
+        const waitTime = Math.pow(2, retryCount) * 1000;
+        await delay(waitTime);
+        return correctText(text, retryCount + 1);
+      }
+
       const data = await response.json();
       if (data.choices && data.choices[0]) {
         return data.choices[0].message.content;
@@ -39,6 +55,12 @@ export const useVoiceRecognition = (
       return text;
     } catch (error) {
       console.error('Error corrigiendo texto:', error);
+      if (retryCount < 3) {
+        console.log(`Intento ${retryCount + 1}: Error en la petición, reintentando...`);
+        const waitTime = Math.pow(2, retryCount) * 1000;
+        await delay(waitTime);
+        return correctText(text, retryCount + 1);
+      }
       return text;
     }
   };
