@@ -7,6 +7,42 @@ export const useVoiceRecognition = (
   const { toast } = useToast();
   let silenceTimer: NodeJS.Timeout;
 
+  const correctText = async (text: string): Promise<string> => {
+    try {
+      const response = await fetch('https://api.x.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer xai-uoMvikQBNFsDmXOqZh3MFfstiR8RXhTLDjdNaXrcUQUOkAyKfO0CfnPDklfnQh2VC2aGAl0ltJZd4Aio'
+        },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: "system",
+              content: "Eres un corrector de texto. Tu tarea es corregir la ortografía y mejorar la sintaxis del texto proporcionado, manteniendo el significado original. Solo devuelve el texto corregido, sin explicaciones adicionales."
+            },
+            {
+              role: "user",
+              content: text
+            }
+          ],
+          model: "grok-2-1212",
+          stream: false,
+          temperature: 0.3
+        })
+      });
+
+      const data = await response.json();
+      if (data.choices && data.choices[0]) {
+        return data.choices[0].message.content;
+      }
+      return text;
+    } catch (error) {
+      console.error('Error corrigiendo texto:', error);
+      return text;
+    }
+  };
+
   const startListening = () => {
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -16,7 +52,7 @@ export const useVoiceRecognition = (
       recognition.continuous = true;
       recognition.interimResults = true;
 
-      recognition.onresult = (event) => {
+      recognition.onresult = async (event) => {
         if (silenceTimer) {
           clearTimeout(silenceTimer);
         }
@@ -25,7 +61,10 @@ export const useVoiceRecognition = (
           .map(result => result[0])
           .map(result => result.transcript)
           .join('');
-        onTranscript(transcript);
+
+        // Corregir el texto antes de enviarlo
+        const correctedText = await correctText(transcript);
+        onTranscript(correctedText);
 
         silenceTimer = setTimeout(() => {
           if (recognition) {
